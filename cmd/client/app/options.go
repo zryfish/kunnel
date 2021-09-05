@@ -12,6 +12,8 @@ type ClientOptions struct {
 	KeepAlive        time.Duration
 	MaxRetryCount    int
 	MaxRetryInterval time.Duration
+	Host             string
+	Headers          []string
 }
 
 func NewClientOptions() *ClientOptions {
@@ -28,7 +30,9 @@ func (c *ClientOptions) Flags() *pflag.FlagSet {
 	fs.StringVar(&c.Local, "local", c.Local, "Local address, 127.0.0.1:8000")
 	fs.DurationVar(&c.KeepAlive, "keepalive", c.KeepAlive, "Keepalive duration")
 	fs.IntVar(&c.MaxRetryCount, "mex-retry", c.MaxRetryCount, "Maximum retries, 0 means never stop")
+	fs.StringVar(&c.Host, "host", c.Host, "Override proxy host")
 	fs.DurationVar(&c.MaxRetryInterval, "max-retry-interval", c.MaxRetryInterval, "Maximum duration between two retries")
+	fs.StringSliceVar(&c.Headers, "headers", c.Headers, "Custom headers, for example, host=example.com")
 
 	return fs
 }

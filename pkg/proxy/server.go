@@ -5,6 +5,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
@@ -29,9 +30,11 @@ var upgrader = websocket.Upgrader{
 }
 
 type Options struct {
-	Host   string
-	Port   int
-	Domain string
+	Host       string
+	Port       int
+	Domain     string
+	TlsKeyFile string
+	TlsCrtFile string
 }
 
 type Server struct {
@@ -41,6 +44,7 @@ type Server struct {
 	port       int
 	domain     string
 	sessions   map[string]*HttpProxy
+	tlsConfig  *tls.Config
 }
 
 func NewServer(options *Options) (*Server, error) {
@@ -50,6 +54,15 @@ func NewServer(options *Options) (*Server, error) {
 		port:       options.Port,
 		domain:     options.Domain,
 		sessions:   make(map[string]*HttpProxy),
+	}
+
+	if len(options.TlsCrtFile) != 0 && len(options.TlsKeyFile) != 0 {
+		cer, err := tls.LoadX509KeyPair(options.TlsCrtFile, options.TlsKeyFile)
+		if err != nil {
+			return nil, fmt.Errorf("error loading tls certificate, %v", err)
+		}
+
+		s.tlsConfig = &tls.Config{Certificates: []tls.Certificate{cer}}
 	}
 
 	key, _ := generateKey()
@@ -82,18 +95,10 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		klog.V(4).Infof("Ingoring client connection using protocol '%s', expected '%s'", protocol, version.ProtocolVersion)
+		return
 	}
 
-	switch r.URL.String() {
-	case "/health":
-		w.Write([]byte("OK\n"))
-		return
-	case "/version":
-		w.Write([]byte(version.BuildVersion))
-		return
-	default:
-		s.handleRequest(w, r)
-	}
+	s.handleRequest(w, r)
 }
 
 func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
@@ -137,7 +142,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		},
 	}
 
-	proxy := NewHttpProxy(config.Name, config.LocalHost, config.LocalPort, transport)
+	proxy := NewHttpProxy(config.Name, config.LocalHost, config.LocalPort, config.Host, config.Hedaers, transport)
 
 	subDomain := s.generateSubDomain() + s.domain
 
@@ -180,7 +185,7 @@ func (s *Server) Start(host string, port int) error {
 	h := http.Handler(http.HandlerFunc(s.handleClientHandler))
 	h = wrap(h)
 
-	return s.httpServer.GoListenAndServe(fmt.Sprintf("%s:%d", host, port), h)
+	return s.httpServer.GoListenAndServeTls(fmt.Sprintf("%s:%d", host, port), h, s.tlsConfig)
 }
 
 func (s *Server) Wait() error {
@@ -221,7 +226,7 @@ func (s *Server) handleRequest(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("No upstream found"))
 		return
 	}
-
+	go klog.V(4).Infof("Proxy for %s, destintion %s", req.RemoteAddr, host)
 	session.ServeHTTP(w, req)
 }
 
