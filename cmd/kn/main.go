@@ -76,7 +76,7 @@ func main() {
 			}
 
 			if knOptions.Daemon {
-				return StartInCluster(kubeClient, ctx, knOptions.Namespace, knOptions.Service, service.Spec.ClusterIP, knOptions.Server, knOptions.Port, knOptions.Host, knOptions.Headers)
+				return StartInCluster(kubeClient, ctx, knOptions.Namespace, knOptions.Service, knOptions.Server, service.Spec.ClusterIP, knOptions.Port, knOptions.Host, knOptions.Headers)
 			}
 
 			return Start(ctx, service.Spec.ClusterIP, knOptions.Port, knOptions.Host, knOptions.Server, headers)

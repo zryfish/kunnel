@@ -4,6 +4,7 @@ Kunnel is short for **Kubernetes tunnel**, built for exposing Kubernetes service
 ## Install
 
 ### Binaries
+You can download releases directly from [Release Page](https://github.com/zryfish/kunnel/releases)
 
 ### Build from source
 ```
@@ -11,49 +12,56 @@ git clone https://github.com/zryfish/kunnel.git
 cd kunnel
 make all
 ```
-Binaries `server` and `client` will be found under directory `bin/`.
+Binaries `server` `client` and `kubectl-kn` will be found under directory `bin/`.
 
 ## How to run
-### Run Locally
-A top-level domain is required to run the server. For testing purposes, you can specify any domain.
+
+### Proxy kubernetes service
+It's easy to proxy service of Kubernetes. Suppose you have an `nginx` service under namespace `default`.
+
 ```shell
-./server  --domain kunnel.run --port 80
-# I0901 17:49:31.522742   45829 main.go:37] server started
+root@master:~# kubectl get svc
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.233.0.1      <none>        443/TCP   11d
+nginx        ClusterIP   10.233.48.225   <none>        80/TCP    8s
 ```
 
-Now, the server is ready to accept requests. Suppose there is a service running on `http://192.168.0.12:8000`, run client as follows, rem:
-```shell
-./client --server ws://localhost:80 --local 192.168.0.12:8000
-# I0901 17:54:32.551148   48845 client.go:180] Service available at q0e9ioxrap.kunnel.run
+To proxy `nginx` service, just simply run the following command in your cluster.
+```
+root@master:~# ./bin/kubectl-kn -n default -s nginx
+W0906 07:48:19.298922   16910 main.go:58] No port specified, will use first port [80] of service
+I0906 07:48:19.339564   16910 client.go:180] Service available at https://vl41w0ixmn.kunnel.run
 ```
 
-We can test the tunnel using `curl`, 
+Now, you can access your nginx service through the address `https://vl41w0ixmn.kunnel.run`. Like the following:
+![Nginx](./docs/img/demo.png)
+
+
+> To run proxy background, just add option `-d`. For example `kubectl-kn -n default -s nginx -d`. This will create a deployment in your cluster under namespace given.
+
+
+### Proxy for ingress 
+Kunnel can proxy requestes for virtualhost. For example, my ingress controller service under namespace `kubesphere-controls-system`, this is an ingress rule with host `foo.bar`.
 ```
-$ curl -v --resolve q0e9ioxrap.kunnel.run:80:127.0.0.1 http://q0e9ioxrap.kunnel.run
-* Added q0e9ioxrap.kunnel.run:80:127.0.0.1 to DNS cache
-* Hostname q0e9ioxrap.kunnel.run was found in DNS cache
-*   Trying 127.0.0.1...
-* TCP_NODELAY set
-* Connected to q0e9ioxrap.kunnel.run (127.0.0.1) port 80 (#0)
-> GET / HTTP/1.1
-> Host: q0e9ioxrap.kunnel.run
-> User-Agent: curl/7.64.1
-> Accept: */*
->
-< HTTP/1.1 200 OK
-< Content-Length: 13
-< Content-Type: text/html
-< Date: Wed, 01 Sep 2021 09:59:28 GMT
-< Last-Modified: Wed, 01 Sep 2021 09:58:07 GMT
-< Server: SimpleHTTP/0.6 Python/2.7.16
-<
-Hello World!
-* Connection #0 to host q0e9ioxrap.kunnel.run left intact
-* Closing connection 0
+root@master:~# kubectl -n kubesphere-controls-system get svc
+NAME                             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+kubesphere-router-test           NodePort    10.233.14.239   <none>        80:32360/TCP,443:32604/TCP   2m21s
+
+root@master:~# kubectl -n test get ing
+NAME   CLASS    HOSTS     ADDRESS        PORTS   AGE
+test   <none>   foo.bar   192.168.0.14   80      5m4s
 ```
 
-## Run on the server
-A globally accessible domain is required to run server publicly, for example, kunnel.run. Also need to make sure the following DNS record exists on your domain provider.
+To proxy requests for rule `test` with Host `foo.bar`, just create tunnel with host override by specify `--host foo.bar`
+
+We can create a tunnel for ingress controller by following:
 ```
-A * [SERVER IP]
+root@master:~# kubectl-kn -n kubesphere-controls-system -s kubesphere-router-test --host foo.bar -d
+root@master:~# kubectl -n kubesphere-controls-system logs -lapp=kunnel
+I0906 08:13:28.258512       1 client.go:180] Service available at https://3fc3p231wj.kunnel.run
 ```
+
+Now we can access ingress rule `test` through the address `https://3fc3p231wj.kunnel.run`.
+
+## Kubectl plugin
+We are working to merge `kunnel` into [krew](https://github.com/kubernetes-sigs/krew)
