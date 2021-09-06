@@ -1,7 +1,7 @@
-VERSION=$(shell git describe --abbrev=0 --tags 2>1)
+VERSION=$(shell git describe --abbrev=0 --tags 2>&1)
 BUILD=$(shell git rev-parse HEAD)
 REPO=jeffwithlove/kunnel
-TAG=${VERSION:-latest}
+TAG=${VERSION}
 
 LDFLAGS=-ldflags "-s -w -X github.com/zryfish/kunnel/pkg/version.BuildVersion=${VERSION}"
 
@@ -19,7 +19,7 @@ kubectl-kn: test
 test: fmt vet
 
 docker:
-	@docker build -t ${REPO}:${TAG} .
+	docker build -t ${REPO}:${TAG} .
 
 # Run tests
 test:  fmt vet

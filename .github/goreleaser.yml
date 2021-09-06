@@ -5,10 +5,8 @@ builds:
     goos:
       - linux
       - darwin
-      - windows
     goarch:
       - amd64
-      - arm
       - arm64
     ldflags:
       - -s -w -X github.com/zryfish/kunnel/pkg/version.BuildVersion={{.Version}}
@@ -23,10 +21,8 @@ builds:
     goos:
       - linux
       - darwin
-      - windows
     goarch:
       - amd64
-      - arm
       - arm64
     ldflags:
       - -s -w -X github.com/zryfish/kunnel/pkg/version.BuildVersion={{.Version}}
@@ -41,10 +37,8 @@ builds:
     goos:
       - linux
       - darwin
-      - windows
     goarch:
       - amd64
-      - arm
       - arm64
     ldflags:
       - -s -w -X github.com/zryfish/kunnel/pkg/version.BuildVersion={{.Version}}
@@ -54,9 +48,7 @@ builds:
       - CGO_ENABLED=0
 
 archives:
-  - format: gz
-    files:
-      - none*
+  - format: binary
 release:
   prerelease: auto
 changelog:
