@@ -1,5 +1,5 @@
 ## Kunnel
-Kunnel is short for **Kubernetes tunnel**, built for exposing Kubernetes service to outside the cluster. It requires a globally accessible domain and creates a reverse tunnel from that domain to Kubernetes.
+Kunnel is short for **Kubernetes tunnel**, built for exposing Kubernetes service to outside the cluster without LoadBalancer or NodePort.
 
 ## Install
 
