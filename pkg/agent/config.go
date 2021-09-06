@@ -11,6 +11,12 @@ type Config struct {
 	LocalPort int
 
 	LocalHost string
+
+	Domain string
+
+	Host string
+
+	Hedaers map[string]string
 }
 
 func (c *Config) Unmarshal(b []byte) error {

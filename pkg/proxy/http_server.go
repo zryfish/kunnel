@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"crypto/tls"
 	"errors"
 	"net"
 	"net/http"
@@ -27,8 +28,15 @@ func NewHttpServer() *HttpServer {
 	}
 }
 
-func (h *HttpServer) GoListenAndServe(addr string, handler http.Handler) error {
-	l, err := net.Listen("tcp", addr)
+func (h *HttpServer) GoListenAndServeTls(addr string, handler http.Handler, tlsConfig *tls.Config) error {
+	var l net.Listener
+	var err error
+	if tlsConfig != nil {
+		l, err = tls.Listen("tcp", addr, tlsConfig)
+	} else {
+		l, err = net.Listen("tcp", addr)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -40,6 +48,7 @@ func (h *HttpServer) GoListenAndServe(addr string, handler http.Handler) error {
 		h.CloseWith(h.Serve(l))
 	}()
 	return nil
+
 }
 
 func (h *HttpServer) CloseWith(err error) {

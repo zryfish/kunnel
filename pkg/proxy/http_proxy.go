@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"k8s.io/klog"
 
@@ -16,18 +17,22 @@ type HttpProxy struct {
 	host       string
 	server     *http.Server
 	httpClient *http.Client
+	proxyHost  string
+	headers    map[string]string
 }
 
-func NewHttpProxy(name, host string, port int, transport *http.Transport) *HttpProxy {
+func NewHttpProxy(name, host string, port int, proxyHost string, headers map[string]string, transport *http.Transport) *HttpProxy {
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%d", port),
 	}
 
 	return &HttpProxy{
-		name:   name,
-		host:   host,
-		port:   port,
-		server: server,
+		name:      name,
+		host:      host,
+		port:      port,
+		headers:   headers,
+		server:    server,
+		proxyHost: proxyHost,
 		httpClient: &http.Client{
 			Transport: transport,
 		},
@@ -66,6 +71,18 @@ func (s *HttpProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	u.Host = fmt.Sprintf("%s:%d", s.host, s.port)
 
 	httpProxy := k8sproxy.NewUpgradeAwareHandler(&u, s.httpClient.Transport, false, false, s)
+
+	if len(s.proxyHost) != 0 {
+		req.Host = s.proxyHost
+	}
+
+	for k, v := range s.headers {
+		if _, existed := req.Header[k]; existed && strings.ToLower(k) != "host" {
+			continue
+		}
+		req.Header.Add(k, v)
+	}
+
 	httpProxy.ServeHTTP(w, req)
 }
 

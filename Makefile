@@ -1,11 +1,14 @@
 
-all: client server
+all: client server kubectl-kn
 
 client: test
 	go build -o bin/client cmd/client/main.go
 
 server: test
 	go build -o bin/server cmd/server/main.go
+
+kubectl-kn: test
+	go build -o bin/kubectl-kn cmd/kn/main.go
 
 test: fmt vet
 

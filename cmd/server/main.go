@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -20,9 +22,11 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			options.Print()
 			serverOption := &proxy.Options{
-				Host:   options.Host,
-				Port:   options.Port,
-				Domain: options.Domain,
+				Host:       options.Bind,
+				Port:       options.Port,
+				Domain:     options.Domain,
+				TlsKeyFile: options.TlsKeyFile,
+				TlsCrtFile: options.TlsCrtFile,
 			}
 
 			srv, err := proxy.NewServer(serverOption)
@@ -34,7 +38,7 @@ func main() {
 				klog.Fatalf("Failed to create proxy %v", err)
 			}
 
-			klog.Info("server started")
+			klog.Infof("Server started listening on %s", fmt.Sprintf("%s:%d", options.Bind, options.Port))
 
 			return srv.Wait()
 		},
@@ -42,6 +46,8 @@ func main() {
 
 	fs := rootCommand.Flags()
 	fs.AddFlagSet(options.Flags())
+	klog.InitFlags(nil)
+	fs.AddGoFlagSet(flag.CommandLine)
 
 	if err := rootCommand.Execute(); err != nil {
 		log.Fatalln(err)

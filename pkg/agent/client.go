@@ -177,7 +177,7 @@ func (c *Client) connectionLoop() {
 		}
 
 		if len(msg.Domain) != 0 {
-			klog.Infof("Service available at %s", msg.Domain)
+			klog.Infof("Service available at https://%s", msg.Domain)
 		}
 
 		klog.V(2).Infof("Connected (Latency %s)", time.Since(t0))
