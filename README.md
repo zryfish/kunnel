@@ -28,7 +28,7 @@ nginx        ClusterIP   10.233.48.225   <none>        80/TCP    8s
 
 To proxy `nginx` service, just simply run the following command in your cluster.
 ```
-root@master:~# ./bin/kubectl-kn -n default -s nginx
+root@master:~# kubectl-kn -n default -s nginx
 W0906 07:48:19.298922   16910 main.go:58] No port specified, will use first port [80] of service
 I0906 07:48:19.339564   16910 client.go:180] Service available at https://vl41w0ixmn.kunnel.run
 ```
