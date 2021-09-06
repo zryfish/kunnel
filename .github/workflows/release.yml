@@ -1,0 +1,17 @@
+on: [push, pull_request]
+name: Release
+jobs:
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: goreleaser
+        if: success()
+        uses: docker://goreleaser/goreleaser:latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        with:
+          args: release --config .github/goreleaser.yml
