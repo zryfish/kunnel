@@ -16,7 +16,8 @@ func main() {
 	clientOptions := app.NewClientOptions()
 
 	command := &cobra.Command{
-		Use: "Kunnel",
+		Use:  "client",
+		Long: "A tool for tunnel local service.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			local, err := utils.NewLocal(clientOptions.Local)
 			if err != nil {

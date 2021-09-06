@@ -1,6 +1,6 @@
 
 ARG GOLANG_IMAGE=golang:1.16.5
-FROM ${GOLANG_IMAGE} as binary_tools_context
+FROM ${GOLANG_IMAGE} as build_context
 
 ENV OUTDIR=/out
 RUN mkdir -p ${OUTDIR}/usr/local/bin/
@@ -9,7 +9,7 @@ WORKDIR /workspace
 ADD . /workspace/
 
 RUN make all
-RUN mv /workspace/bin/{server,client,kubectl-kn} ${OUTDIR}/usr/local/bin/
+RUN mv /workspace/bin/* ${OUTDIR}/usr/local/bin/
 
 ##############
 # Final image
@@ -17,7 +17,6 @@ RUN mv /workspace/bin/{server,client,kubectl-kn} ${OUTDIR}/usr/local/bin/
 
 FROM alpine:3.11 
 
-COPY --from=base_os_context /out/ /
 COPY --from=build_context /out/ /
 
 WORKDIR /

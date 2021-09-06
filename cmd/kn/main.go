@@ -23,7 +23,8 @@ func main() {
 	knOptions := app.NewKnOptions()
 
 	knCommand := &cobra.Command{
-		Use: "kn is a kubectl plugin to proxy kubernetes service outside the cluster.",
+		Use:  "kubectl-kn",
+		Long: "kn is a kubectl plugin to proxy kubernetes service outside the cluster.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(knOptions.Service) == 0 {
 				return fmt.Errorf("service not provided")
