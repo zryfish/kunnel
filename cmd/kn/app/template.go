@@ -45,7 +45,7 @@ func NewDeployment(namespace, service, localhost, server string, localport int, 
 	deployment.Name = fmt.Sprintf("kunnel-%s", service)
 	deployment.Namespace = namespace
 
-	command := []string{"kunnel"}
+	command := []string{"client"}
 	command = append(command, "--server", server, "--local", fmt.Sprintf("%s:%d", localhost, localport))
 	if len(host) != 0 {
 		command = append(command, "--host", host)

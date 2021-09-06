@@ -8,8 +8,8 @@ RUN mkdir -p ${OUTDIR}/usr/local/bin/
 WORKDIR /workspace
 ADD . /workspace/
 
-RUN make client
-RUN mv /workspace/bin/client ${OUTDIR}/usr/local/bin/kunnel
+RUN make all
+RUN mv /workspace/bin/{server,client,kubectl-kn} ${OUTDIR}/usr/local/bin/
 
 ##############
 # Final image
