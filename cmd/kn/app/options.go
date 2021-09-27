@@ -38,6 +38,7 @@ func (k *KnOptions) Flags() *pflag.FlagSet {
 	fs.StringVar(&k.KubeConfig, "kubeconfig", fmt.Sprintf("%s/.kube/config", homeDir), "Location of the kubeconfig")
 	fs.StringVarP(&k.Service, "service", "s", k.Service, "Service name to be proxied, only services with cluster ip are supported.")
 	fs.StringVar(&k.Host, "host", k.Host, "Override request host field when proxied to destintation.")
+	fs.IntVarP(&k.Port, "port", "p", k.Port, "Service port.")
 	fs.StringSliceVar(&k.Headers, "headers", []string{}, "Custom headers to be added, format like key=val")
 	return fs
 }
