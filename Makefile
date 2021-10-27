@@ -5,16 +5,13 @@ TAG=${VERSION}
 
 LDFLAGS=-ldflags "-s -w -X github.com/zryfish/kunnel/pkg/version.BuildVersion=${VERSION}"
 
-all: client server kubectl-kn
-
-client: test
-	CGO_ENABLED=0 go build -trimpath ${LDFLAGS} -o bin/client cmd/client/main.go
+all: server kn
 
 server: test
 	CGO_ENABLED=0 go build -trimpath ${LDFLAGS} -o bin/server cmd/server/main.go
 
-kubectl-kn: test
-	CGO_ENABLED=0 go build -trimpath ${LDFLAGS} -o bin/kubectl-kn cmd/kn/main.go
+kn: test
+	CGO_ENABLED=0 go build -trimpath ${LDFLAGS} -o bin/kn cmd/kn/main.go
 
 test: fmt vet
 
