@@ -1,26 +1,9 @@
 builds:
-  - main: ./cmd/client
-    binary: client
-    id: "client"
-    goos:
-      - linux
-      - darwin
-    goarch:
-      - amd64
-      - arm64
-    ldflags:
-      - -s -w -X github.com/zryfish/kunnel/pkg/version.BuildVersion={{.Version}}
-    flags:
-      - -trimpath
-    env:
-      - CGO_ENABLED=0
-
   - main: ./cmd/server
     binary: server
     id: "server"
     goos:
       - linux
-      - darwin
     goarch:
       - amd64
       - arm64
@@ -32,11 +15,12 @@ builds:
       - CGO_ENABLED=0
 
   - main: ./cmd/kn
-    binary: kubectl-kn
-    id: "kubectl-kn"
+    binary: kn
+    id: "kn"
     goos:
       - linux
       - darwin
+      - windows
     goarch:
       - amd64
       - arm64
