@@ -4,6 +4,7 @@ builds:
     id: "server"
     goos:
       - linux
+      - darwin
     goarch:
       - amd64
       - arm64
