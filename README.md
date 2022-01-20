@@ -65,3 +65,6 @@ Now we can access ingress rule `test` through the address `https://3fc3p231wj.ku
 
 ## Kubectl plugin
 We are working to merge `kunnel` into [krew](https://github.com/kubernetes-sigs/krew)
+
+## Don't use `kunnel.run` in production
+Don't use the domain `kunnel.run` in your production evnironment, cause we may need bring it down for maintenance. You could setup a server on your own proxy domain.
