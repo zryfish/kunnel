@@ -56,7 +56,7 @@ To proxy requests for rule `test` with Host `foo.bar`, start `kunnel` with host 
 
 We can create a tunnel for ingress controller by following:
 ```
-root@master:~# ./n -n kubesphere-controls-system -s kubesphere-router-test --host foo.bar -d
+root@master:~# ./kn -n kubesphere-controls-system -s kubesphere-router-test --host foo.bar -d
 root@master:~# kubectl -n kubesphere-controls-system logs -lapp=kunnel
 I0906 08:13:28.258512       1 client.go:180] Service available at https://3fc3p231wj.kunnel.run
 ```
