@@ -40,7 +40,7 @@ var DeploymentTemplate = &v1.Deployment{
 	},
 }
 
-func NewDeployment(namespace, service, localhost, server string, localport int, host string, headers []string) *v1.Deployment {
+func NewDeployment(namespace, service, localhost, server string, localport int, host, protocol string, headers []string) *v1.Deployment {
 	deployment := DeploymentTemplate.DeepCopy()
 	deployment.Name = fmt.Sprintf("kunnel-%s", service)
 	deployment.Namespace = namespace
@@ -49,6 +49,10 @@ func NewDeployment(namespace, service, localhost, server string, localport int, 
 	command = append(command, "--server", server, "--local", fmt.Sprintf("%s:%d", localhost, localport))
 	if len(host) != 0 {
 		command = append(command, "--host", host)
+	}
+
+	if len(protocol) != 0 {
+		command = append(command, "--protocol", protocol)
 	}
 
 	for _, header := range headers {

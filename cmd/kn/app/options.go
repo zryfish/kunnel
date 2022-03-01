@@ -14,6 +14,7 @@ type KnOptions struct {
 	Host             string
 	Headers          []string
 	Local            string // local address, for example 3000/:3000/192.168.0.12:8000 are all valid
+	Protocol         string
 	KeepAlive        time.Duration
 	MaxRetryCount    int
 	MaxRetryInterval time.Duration
@@ -30,6 +31,7 @@ func NewKnOptions() *KnOptions {
 		MaxRetryInterval: 5 * time.Minute,
 		MaxRetryCount:    0,
 		KeepAlive:        1 * time.Minute,
+		Protocol:         "http",
 	}
 }
 
@@ -43,6 +45,7 @@ func (k *KnOptions) Flags() *pflag.FlagSet {
 	fs.StringVarP(&k.Namespace, "namespace", "n", k.Namespace, "[Kubernetes Only] Namespace of the service.")
 	fs.BoolVarP(&k.Daemon, "daemon", "d", k.Daemon, "Run as a deployment in the cluster.")
 	fs.StringVar(&k.Server, "server", k.Server, "Available kunnel server address.")
+	fs.StringVar(&k.Protocol, "protocol", k.Protocol, "Proxied service's protocol, only http and https are supported.")
 	fs.StringVar(&k.KubeConfig, "kubeconfig", fmt.Sprintf("%s/.kube/config", homeDir), "[Kubernetes Only] Location of the kubeconfig")
 	fs.StringVarP(&k.Service, "service", "s", k.Service, "[Kubernetes Only] Service name to be proxied, only services with cluster ip are supported.")
 	fs.StringVar(&k.Host, "host", k.Host, "Override request host field when proxied to destintation.")

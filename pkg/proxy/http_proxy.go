@@ -15,13 +15,14 @@ type HttpProxy struct {
 	name       string
 	port       int
 	host       string
+	protocol   string
 	server     *http.Server
 	httpClient *http.Client
 	proxyHost  string
 	headers    map[string]string
 }
 
-func NewHttpProxy(name, host string, port int, proxyHost string, headers map[string]string, transport *http.Transport) *HttpProxy {
+func NewHttpProxy(name, host, protocol string, port int, proxyHost string, headers map[string]string, transport *http.Transport) *HttpProxy {
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%d", port),
 	}
@@ -30,6 +31,7 @@ func NewHttpProxy(name, host string, port int, proxyHost string, headers map[str
 		name:      name,
 		host:      host,
 		port:      port,
+		protocol:  protocol,
 		headers:   headers,
 		server:    server,
 		proxyHost: proxyHost,
@@ -69,6 +71,7 @@ func (s *HttpProxy) Start(ctx context.Context) error {
 func (s *HttpProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	u := *req.URL
 	u.Host = fmt.Sprintf("%s:%d", s.host, s.port)
+	u.Scheme = s.protocol
 
 	httpProxy := k8sproxy.NewUpgradeAwareHandler(&u, s.httpClient.Transport, false, false, s)
 

@@ -76,10 +76,10 @@ func main() {
 			}
 
 			if knOptions.Daemon {
-				return StartInCluster(kubeClient, ctx, knOptions.Namespace, knOptions.Service, knOptions.Server, service.Spec.ClusterIP, knOptions.Port, knOptions.Host, knOptions.Headers)
+				return StartInCluster(kubeClient, ctx, knOptions.Namespace, knOptions.Service, knOptions.Server, service.Spec.ClusterIP, knOptions.Port, knOptions.Host, knOptions.Protocol, knOptions.Headers)
 			}
 
-			return Start(ctx, service.Spec.ClusterIP, knOptions.Port, knOptions.Host, knOptions.Server, headers)
+			return Start(ctx, service.Spec.ClusterIP, knOptions.Port, knOptions.Host, knOptions.Server, knOptions.Protocol, headers)
 		},
 	}
 
@@ -91,13 +91,14 @@ func main() {
 	}
 }
 
-func Start(ctx context.Context, localhost string, localport int, host, server string, headers map[string]string) error {
+func Start(ctx context.Context, localhost string, localport int, host, server, protocol string, headers map[string]string) error {
 	config := &agent.Config{
 		Name:      "dummy",
 		LocalHost: localhost,
 		LocalPort: localport,
 		Host:      host,
 		Hedaers:   headers,
+		Protocol:  protocol,
 	}
 
 	agent := agent.NewClient(config, time.Second*3, 20, time.Minute*5, server)
@@ -108,8 +109,8 @@ func Start(ctx context.Context, localhost string, localport int, host, server st
 	return agent.Wait()
 }
 
-func StartInCluster(kubeClient kubernetes.Interface, ctx context.Context, namespace, service, server string, localhost string, localport int, host string, headers []string) error {
-	deployment := app.NewDeployment(namespace, service, localhost, server, localport, host, headers)
+func StartInCluster(kubeClient kubernetes.Interface, ctx context.Context, namespace, service, server string, localhost string, localport int, host, protocol string, headers []string) error {
+	deployment := app.NewDeployment(namespace, service, localhost, server, localport, host, protocol, headers)
 
 	_, err := kubeClient.AppsV1().Deployments(namespace).Get(ctx, deployment.Name, metav1.GetOptions{})
 	if err != nil {

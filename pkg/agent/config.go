@@ -16,6 +16,8 @@ type Config struct {
 
 	Host string
 
+	Protocol string
+
 	Hedaers map[string]string
 }
 

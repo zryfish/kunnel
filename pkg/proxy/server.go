@@ -142,7 +142,13 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		},
 	}
 
-	proxy := NewHttpProxy(config.Name, config.LocalHost, config.LocalPort, config.Host, config.Hedaers, transport)
+	if config.Protocol == "https" {
+		transport.TLSClientConfig = &tls.Config{
+			InsecureSkipVerify: true,
+		}
+	}
+
+	proxy := NewHttpProxy(config.Name, config.LocalHost, config.Protocol, config.LocalPort, config.Host, config.Hedaers, transport)
 
 	subDomain := s.generateSubDomain() + s.domain
 
